@@ -1,0 +1,391 @@
+\documentclass[supercite]{Experimental_Report}
+
+\title{基于双线性池化注意力机制的步态识别网络}
+\author{古效朋}
+\school{计算机科学与技术}
+\classnum{ACM1501}
+\stunum{U201714555}
+\instructor{另一个人}
+\date{2021年6月6日}
+
+\usepackage{algorithm, multirow}
+\usepackage{algpseudocode}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{framed}
+\usepackage{mathtools}
+\usepackage{subcaption}
+\usepackage{xltxtra} %提供了针对XeTeX的改进并且加入了XeTeX的LOGO, 自动调用xunicode宏包(提供Unicode字符宏)
+\usepackage{bm}
+\usepackage{tikz}
+\usepackage{tikzscale}
+\usepackage{pgfplots}
+
+\pgfplotsset{compat=1.16}
+
+\newcommand{\cfig}[3]{
+  \begin{figure}[htb]
+    \centering
+    \includegraphics[width=#2\textwidth]{images/#1.tikz}
+    \caption{#3}
+    \label{fig:#1}
+  \end{figure}
+}
+
+\newcommand{\sfig}[3]{
+  \begin{subfigure}[b]{#2\textwidth}
+    \includegraphics[width=\textwidth]{images/#1.tikz}
+    \caption{#3}
+    \label{fig:#1}
+  \end{subfigure}
+}
+
+\newcommand{\xfig}[3]{
+  \begin{figure}[htb]
+    \centering
+    #3
+    \caption{#2}
+    \label{fig:#1}
+  \end{figure}
+}
+
+\newcommand{\rfig}[1]{\autoref{fig:#1}}
+\newcommand{\ralg}[1]{\autoref{alg:#1}}
+\newcommand{\rthm}[1]{\autoref{thm:#1}}
+\newcommand{\rlem}[1]{\autoref{lem:#1}}
+\newcommand{\reqn}[1]{\autoref{eqn:#1}}
+\newcommand{\rtbl}[1]{\autoref{tbl:#1}}
+
+\algnewcommand\Null{\textsc{null }}
+\algnewcommand\algorithmicinput{\textbf{Input:}}
+\algnewcommand\Input{\item[\algorithmicinput]}
+\algnewcommand\algorithmicoutput{\textbf{Output:}}
+\algnewcommand\Output{\item[\algorithmicoutput]}
+\algnewcommand\algorithmicbreak{\textbf{break}}
+\algnewcommand\Break{\algorithmicbreak}
+\algnewcommand\algorithmiccontinue{\textbf{continue}}
+\algnewcommand\Continue{\algorithmiccontinue}
+\algnewcommand{\LeftCom}[1]{\State $\triangleright$ #1}
+
+\newtheorem{thm}{定理}[section]
+\newtheorem{lem}{引理}[section]
+
+\colorlet{shadecolor}{black!15}
+
+\theoremstyle{definition}
+\newtheorem{alg}{算法}[section]
+
+\def\thmautorefname~#1\null{定理~#1~\null}
+\def\lemautorefname~#1\null{引理~#1~\null}
+\def\algautorefname~#1\null{算法~#1~\null}
+
+\begin{document}
+
+\maketitle
+
+%\statement
+
+\clearpage
+
+\pagenumbering{Roman}
+
+
+
+\tableofcontents[level=2]
+\clearpage
+
+\pagenumbering{arabic}
+
+\section{绪论}
+
+第一章不要少于4页。
+
+这份模板根据\url{https://github.com/skinaze/HUSTPaperTemp}\cite{ski17}修改，添加了一些CS人常用的东西\cite{baf96}。
+
+我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。我是绪论。
+
+\subsection{课题背景}
+
+我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。我是第一小节。
+
+\subsubsection{研究背景和趋势}
+
+我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。
+
+\subsubsection{面临的问题和挑战}
+
+\subsection{国内外研究现状}
+
+\subsection{研究目的和主要内容}
+
+参考文献无法显示怎么办？陈老师正在想办法解决\cite{STR2021Neurocom, AVS2021Neurocom}!
+
+我是参考文献。我是第二小节\cite{Mehrabian1974An}。我是第二小节\cite{Rezaei2014CVPR}。我是第二小节\cite{Ramnath2008IJCV}。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。我是第二小节。李白斗酒诗百篇 \footnote{人生得意须尽欢可能不是李白说的, 而是李白喝酒时候听酒友们说得}。
+
+\subsection{论文结构}
+
+\newpage
+
+\section{必要性与可行性分析}
+
+第二章不要少于5页。
+
+\subsection{什么是必要性}
+
+为什么要解决这个问题，有什么动机，解决了有哪些好处\cite{LTE2015MIP}？目前的方法还有什么缺陷？这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。这是一个算法。
+
+\begin{shaded*}\begin{alg}{一个复杂算法}
+  \label{alg:apb}
+  \begin{algorithmic}
+    \Input Two numbers $a$ and $b$
+    \Output The sum of $a$ and $b$
+    \Procedure{A-Plus-B}{$a, b$}
+      \If $a = 0$
+        \State \Return $b$
+      \EndIf
+      \State $res \gets 0$
+      \While{$b \neq 0$}
+        \State Increase $res$ by $1$
+        \State $b \gets b - 1$
+      \EndWhile
+      \State \Return $res$
+    \EndProcedure
+  \end{algorithmic}
+\end{alg}\end{shaded*}
+
+\begin{thm} \label{thm:gsb-apprx}
+  \ralg{apb}所示的算法是正确的。
+\end{thm}
+\begin{proof}[证明]
+  显然，此处略去。
+\end{proof}
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{什么是可行性}
+
+凭什么说能解决这些问题\cite{MIH2010IEEE}？有哪些现成理论和技术手段可以借鉴？它们为什么可以用于问题的解决？这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。这是一张表。
+
+\begin{generaltab}{表格前后不留白. 通过调整代码调整位置. 但不要让表出所在的章.}{tbl:hmm}
+  \begin{tabular}{c|ccc}
+    \toprule
+    我是字 & 第二列 & 第三列 & 第四列 \\
+    \midrule
+    第一行 & $1$ & $1$ & $4$ \\
+    第二行 & $5$ & $1$ & $4$ \\
+    \bottomrule
+  \end{tabular}
+\end{generaltab}
+
+\rtbl{hmm}是有味道的。
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{第四章性能测试要针对第一第二章提出的问题展开}
+
+这是一堆\cite{Dai2008Semantic}表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆表。这是一堆图。这是一堆图。这是一堆图。
+
+\begin{figure}[htb]
+	\setlength{\abovecaptionskip}{ 0.0cm}
+	\setlength{\belowcaptionskip}{-0.5cm}
+	\begin{center}
+		\includegraphics[scale=0.25]{Fig2-1.pdf}
+		\caption{调整图的位置, 以免留白, 但图不能跑出所在的章.}
+		\label{fig2-1}
+	\end{center}
+\end{figure}
+
+\xfig{bpg-l}{两张小图}{
+  \sfig{bpg-la}{0.3}{小图}
+  \sfig{bpg-lb}{0.3}{小图}
+}
+
+图\ref{fig2-1}很好看，因为采用的是pdf格式的矢量图。\rfig{bpg-la}和\rfig{bpg-lb}因为缩得太小了不那么好看，可以在visio里把他们画在一排，就可以不用xfig命令了。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{本章小结}
+
+\newpage
+
+\section{总体架构与功能模块设计}
+
+第三章不要少于6页\cite{STR2021Neurocom}。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{翻译主要靠有道怎么办}
+
+我是字\cite{MU-MIMO2009IEEE}。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。具体方法请见公式\ref{equ_attention}
+
+\begin{eqnarray}\label{equ_attention}
+	\textbf{Y}_I=\textbf{X}_I{\odot}\textbf{A}_I,~\textbf{Y}_D=\textbf{X}_D{\odot}\textbf{A}_D %\nonumber
+\end{eqnarray}
+
+\subsection{不会找文献怎么办}
+
+\begin{figure}[htb]
+	\setlength{\abovecaptionskip}{ 0.0cm}
+	\setlength{\belowcaptionskip}{-0.5cm}
+	\begin{center}
+		\includegraphics[scale=0.25]{Fig3-1.pdf}
+		\caption{调整图的位置, 以免留白, 但图不能跑出所在的章.}
+		\label{fig3-1}
+	\end{center}
+\end{figure}
+
+图\ref{fig3-1}很好看，因为采用的是pdf格式的矢量图。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{看不懂英文文献怎么办}
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。可以按照公式\ref{equ_GMP}解决之。
+
+\begin{eqnarray}\label{equ_GMP}
+	\begin{cases}
+		\textbf{G}_I=\mathrm{GMP}(\textbf{L}_I) + \mathrm{GAP}(\textbf{L}_I)\\
+		\textbf{G}_D=\mathrm{GMP}(\textbf{L}_D) + \mathrm{GAP}(\textbf{L}_D)
+	\end{cases}
+\end{eqnarray}{}
+
+\subsection{不会用Visio画思维导图怎么办}
+
+我是字。$a\stackrel{<}{=}c$我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\begin{table}
+	\begin{center}
+		\setlength{\tabcolsep}{3.0mm}
+		\caption{Mean and standard deviation of estimation error (Euler angles) on Pandora. The best performance is in \textbf{bold}.}
+		\label{table2}
+		\begin{tabular}{c|ccccc}
+			\hline
+			Method    			        & Data               & Pitch         & Roll           & Yaw              & Accuracy\\
+			\hline
+			\hline			
+			\multirow{5}{*}{POSEidon}   & Depth              & 6.5 $\pm$ 6.6  & 5.4 $\pm$ 5.1  & 10.4 $\pm$ 11.8  & 0.646\\
+			                            & FfD              	 & 6.8 $\pm$ 7.0  & 5.7 $\pm$ 5.7  & 10.5 $\pm$ 14.6  & 0.647\\
+			                            & Gray-level         & 7.1 $\pm$ 6.6  & 5.6 $\pm$ 5.8  & 9.0  $\pm$ 10.9  & 0.639\\
+			                            & Depth + FfD	     & 5.6 $\pm$ 5.0  & 4.9 $\pm$ 5.0  & 9.8  $\pm$ 13.4  & 0.698\\
+		 	                            & Depth + FfD + MI   & 5.7 $\pm$ 5.6  & 4.9 $\pm$ 5.1  & 9.0  $\pm$ 11.9  & 0.715\\
+			\hline
+			DRF                         & Depth              & 6.2 $\pm$ 9.5  & 4.6 $\pm$ 6.7  & 9.3  $\pm$ 14.6  & --\\
+			\hline
+			\multirow{3}{*}{Ours}   	& Depth              & 5.9 $\pm$ 6.2  & 4.5 $\pm$ 4.9  & 8.8  $\pm$ 10.9  & 0.666\\
+			                            & RGB                & 5.5 $\pm$ 5.3  & 4.4 $\pm$ 5.5  & 8.6  $\pm$ 9.3   & 0.698\\
+			                            & RGB + Depth        & 5.0 $\pm$ 4.8  & 4.3 $\pm$ 4.9  & 8.1  $\pm$ 8.3   & \textbf{0.737}\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table}
+
+\subsection{本章小结}
+
+\newpage
+
+\section{功能模块实现与性能分析}
+
+第四章不要少于7页\cite{Multiplexing2000USA}。其中，性能分析不要少于2页。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。其实吧，用Latex写公式也不是很难，请参照公式\ref{equ_loss}
+
+\begin{eqnarray}\label{equ_loss}
+	\mathcal{L}_{id}=\sum_{j=1}^{c}1\{l_k=j\}\log\frac{\exp(f_j(\textbf{W},x_k))}{\sum\nolimits_{l=1}^{c}\exp(f_l(\textbf{W},x_k))}
+\end{eqnarray}
+
+\subsection{程序调不通怎么办}
+
+\begin{figure}[htb]
+	\setlength{\abovecaptionskip}{ 0.0cm}
+	\setlength{\belowcaptionskip}{-0.5cm}
+	\begin{center}
+		\includegraphics[scale=0.65]{Fig4-1.pdf}
+		\caption{调整图的位置, 以免留白, 但图不能跑出所在的章.}
+		\label{fig4-1}
+	\end{center}
+\end{figure}
+
+图\ref{fig4-1}很好看，因为采用的是pdf格式的矢量图。看网贴、问同学，也可以尝试问老师\cite{Euro2015WG}。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\begin{align}
+	f(x) &=4(x+3)^2-4\\
+	&=4x^2+24x+36
+\end{align}
+
+\subsection{依赖包装不了怎么办}
+
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\begin{table}
+	\begin{center}
+		\setlength{\tabcolsep}{5.0mm}
+		\caption{Sample Tabular: cline and hline.}
+		\begin{tabular}{|l|c|r|}
+			\hline
+			\multicolumn{3}{|c|}{Sample Tabular}\\
+			\hline
+			col head  &  col head  & col head\\
+			\hline
+			left      &  center    & right\\
+			\cline{1-2}
+			aligned   & items      & aligned\\
+			\cline{2-3}
+			items     & items      & items\\
+			\cline{1-2}
+			left      & center     & right\\
+			\hline
+		\end{tabular}\label{table_eval}
+	\end{center}
+\end{table}
+
+\subsection{环境变量配置不好怎么办}
+
+\begin{eqnarray}\label{equ_int}
+	\mathcal{S}=\int_{a}^{b}f(x)dx=\sum_{i=1}^{n}\frac{f(x_i)+f(x_{i+1})}{2}h\approx\begin{Bmatrix}\frac{1}{2}(f(a)+f(b))+\sum_{i=1}^{n-1}f(x_i)\end{Bmatrix}h
+\end{eqnarray}
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{性能比不过SoTA怎么办}
+
+
+有人认为，对于本科生性能至少要比两年前的主流方法（顶会顶刊上的）要高\cite{STR2021Neurocom}！硕士研究生要比1年前的主流方法（顶会顶刊上的）的性能要高。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{本章小结}
+
+\newpage
+
+\section{总结与展望}
+
+第五章不要少于2页。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{所做工作的总结}
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{存在的问题与展望}
+
+我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{字数不够怎么办}
+
+深刻理解设计与实现中的要点并做深入展开。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。我是字。
+
+\subsection{查重不过怎么办}
+
+提高自己的写作能力！
+
+\newpage
+
+\begin{thankpage}
+
+感谢陈遇落雁导师给予我的支持，提供双线性池化注意力机制的优化方案，将实验室基于双线性池化注意力机制的视野识别的研究成果给予我做参考。感谢老师提供了机器学习的服务器，提供了步态识别网络的测试环境。还要感谢老师的监督，对每一个学生，每一个任务环节都细心耐心的指导。
+
+感谢和我一起完成实验的同学，在我刚刚接触深度学习的时候，帮助我学习机器学习的代码，为我讲解我不明白的地方。
+
+感谢我的父母，在没有课程的时日里，监督我正常作息，日复一日坚持完成毕业设计。
+
+感谢学院里的监督和指导，感谢学校提供了优良的学习氛围。
+
+
+\end{thankpage}
+
+\nocite{*} %% 作用是不对文献进行引用，但可以生成文献列表
+
+\bibliographystyle{Experimental_Report}
+\bibliography{Experimental_Report}
+
+\end{document}
